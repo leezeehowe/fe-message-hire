@@ -20,7 +20,7 @@ const getCache = function() {
         AccessKeyId: this.AccessKeyId,
         AccessKeySecret: this.AccessKeySecret,
         AccountName: this.AccountName
-    }
+    };
 };
 
 /**
@@ -51,12 +51,12 @@ const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
     return {
         Format: "JSON",
         Version: "2015-11-23",
-        AccessKeyId: AccessKeyId,
+        AccessKeyId,
         SignatureMethod: "HMAC-SHA1",
         Timestamp: date.toISOString(),
         SignatureVersion: "1.0",
 
-        AccountName: AccountName,
+        AccountName,
         AddressType: AddressType ? AddressType : 0,
         SignatureNonce: nonce
     };
