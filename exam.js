@@ -13,7 +13,7 @@ const init = function({AccessKeyId, AccessKeySecret, AccountName}) {
     this.AccessKeyId = AccessKeyId;
     this.AccessKeySecret = AccessKeySecret;
     this.AccountName = AccountName;
-}
+};
 
 const getCache = function() {
     return {
@@ -21,7 +21,7 @@ const getCache = function() {
         AccessKeySecret: this.AccessKeySecret,
         AccountName: this.AccountName
     }
-}
+};
 
 /**
  * 校验config对象里对应field的字段是否有值
@@ -37,9 +37,9 @@ const verifyConfig = function(field, config) {
         if(!fieldValue) {
             errorMsg.push(FIELD_ILLEGAL[fieldName]);
         }
-    })
+    });
     return errorMsg;
-}
+};
 
 /**
  * 解析config对象，获取基本的param对象
@@ -60,7 +60,7 @@ const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
         AddressType: AddressType ? AddressType : 0,
         SignatureNonce: nonce
     };
-}
+};
 
 /**
  * 生成密钥
@@ -80,7 +80,7 @@ const buildSignature = function(param, {AccessKeySecret}) {
         .update(signStr)
         .digest("base64");
     return encodeURIComponent(sign);
-}
+};
 
 /**
  * 生成请求体
@@ -94,7 +94,7 @@ const buildReqBody = function(map, extraField) {
         reqBody.push(key + "=" + param[key]);
     });
     return reqBody.join("&");
-}
+};
 
 const send = function (inputConfig, cb) {
     let errorMsg = [];

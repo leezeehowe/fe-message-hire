@@ -114,5 +114,5 @@ taskMap.forEach((taskItem) => {
         };
         send(taskItem.taskParam, callback);
         init({AccessKeyId, AccessKeySecret, AccountName});
-    })
+    });
 });

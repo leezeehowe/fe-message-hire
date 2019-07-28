@@ -15,7 +15,7 @@ const ACTION = {
         neededParam: ["Action", "TemplateName", "ReceiversName"],
         choosableParam: ["TagName"]
     }
-}
+};
 
 /**
  * 检测到用户传入的配置不合法时，各字段相应的反馈信息
@@ -30,7 +30,7 @@ const FIELD_ILLEGAL = {
     ReceiversName: "ReceiversName required",
     ReplyToAddress: "ReplyToAddress required",
     Subject: "Subject required"
-}
+};
 
 // 密钥算法
 const SIGNATURE_METHOD = "sha1";
