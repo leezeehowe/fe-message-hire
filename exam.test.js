@@ -100,7 +100,7 @@ let taskMap = [
             response: 200
         }
     }
-]
+];
 
 taskMap.forEach((taskItem) => {
     test(taskItem.taskName, (done) => {
@@ -115,4 +115,4 @@ taskMap.forEach((taskItem) => {
         send(taskItem.taskParam, callback);
         init({AccessKeyId, AccessKeySecret, AccountName});
     })
-})
+});

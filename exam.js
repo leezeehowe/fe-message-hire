@@ -32,7 +32,7 @@ const getCache = function() {
 const verifyConfig = function(field, config) {
     const errorMsg = [];
     field = field || [];
-    field.forEach(fieldName => {
+    field.forEach((fieldName) => {
         let fieldValue = config[fieldName];
         if(!fieldValue) {
             errorMsg.push(FIELD_ILLEGAL[fieldName]);
@@ -158,10 +158,10 @@ const send = function (inputConfig, cb) {
             message = response.data.Code + ":" + response.data.Message; 
         }
         return cb(message || error.message, null);
-    })
+    });
 };
 
 module.exports = {
     init,
     send
-}
+};

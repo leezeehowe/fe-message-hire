@@ -39,4 +39,4 @@ module.exports = {
     ACTION,
     FIELD_ILLEGAL,
     SIGNATURE_METHOD
-}
+};
