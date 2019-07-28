@@ -102,8 +102,8 @@ let taskMap = [
     }
 ]
 
-taskMap.forEach(taskItem => {
-    test(taskItem.taskName, done => {
+taskMap.forEach((taskItem) => {
+    test(taskItem.taskName, (done) => {
         const callback = (errMsg, response) => {
             let received = {
                 errMsg,

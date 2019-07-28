@@ -8,6 +8,94 @@ const AccessKeyId = "";
 const AccessKeySecret = "";
 const AccountName = "";
 
+
+const init = function({AccessKeyId, AccessKeySecret, AccountName}) {
+    this.AccessKeyId = AccessKeyId;
+    this.AccessKeySecret = AccessKeySecret;
+    this.AccountName = AccountName;
+}
+
+const getCache = function() {
+    return {
+        AccessKeyId: this.AccessKeyId,
+        AccessKeySecret: this.AccessKeySecret,
+        AccountName: this.AccountName
+    }
+}
+
+/**
+ * 校验config对象里对应field的字段是否有值
+ * @param {Array} field 需要校验的字段的key
+ * @param {Object} config 被校验的对象
+ * 返回一个错误信息数组
+ */
+const verifyConfig = function(field, config) {
+    const errorMsg = [];
+    field = field || [];
+    field.forEach(fieldName => {
+        let fieldValue = config[fieldName];
+        if(!fieldValue) {
+            errorMsg.push(FIELD_ILLEGAL[fieldName]);
+        }
+    })
+    return errorMsg;
+}
+
+/**
+ * 解析config对象，获取基本的param对象
+ * @param {*} config
+ */
+const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
+    let nonce           = Date.now();
+    let date            = new Date();
+    return {
+        Format: "JSON",
+        Version: "2015-11-23",
+        AccessKeyId: AccessKeyId,
+        SignatureMethod: "HMAC-SHA1",
+        Timestamp: date.toISOString(),
+        SignatureVersion: "1.0",
+
+        AccountName: AccountName,
+        AddressType: AddressType ? AddressType : 0,
+        SignatureNonce: nonce
+    };
+}
+
+/**
+ * 生成密钥
+ * @param {Object} map 
+ * @param {*} param1 
+ */
+const buildSignature = function(param, {AccessKeySecret}) {
+    let signStr = "";
+    let signStrArray = [];
+    Object.keys(param).forEach((key) => {
+        signStrArray.push(encodeURIComponent(key) + "=" + encodeURIComponent(param[key]));
+    });
+    signStrArray.sort();
+    signStr = signStrArray.join("&");
+    signStr = "POST&%2F&" + encodeURIComponent(signStr);
+    const sign = crypto.createHmac(SIGNATURE_METHOD, AccessKeySecret + "&")
+        .update(signStr)
+        .digest("base64");
+    return encodeURIComponent(sign);
+}
+
+/**
+ * 生成请求体
+ * @param {} map 
+ * @param {*} extraField 
+ */
+const buildReqBody = function(map, extraField) {
+    const reqBody = [];
+    let param = Object.assign(map, extraField);
+    Object.keys(param).forEach((key) => {
+        reqBody.push(key + "=" + param[key]);
+    });
+    return reqBody.join("&");
+}
+
 const send = function (inputConfig, cb) {
     let errorMsg = [];
     const config = Object.assign(getCache(), inputConfig);
@@ -58,107 +146,22 @@ const send = function (inputConfig, cb) {
         }
     })
     // 邮件发送生成
-    .then(response => {
+    .then((response) => {
         return cb(null, response);
     })
     // 请求失败或者未发出请求
-    .catch(error => {
+    .catch((error) => {
         // 如果已发出请求但业务失败，返回提示信息，否则返回错误信息
         let message = "";
         let response = error.response;
-        if(response && response.data) message = response.data.Code + ":" + response.data.Message; 
+        if(response && response.data) {
+            message = response.data.Code + ":" + response.data.Message; 
+        }
         return cb(message || error.message, null);
     })
 };
 
-const init = function({AccessKeyId, AccessKeySecret, AccountName}) {
-    this.AccessKeyId = AccessKeyId;
-    this.AccessKeySecret = AccessKeySecret;
-    this.AccountName = AccountName;
-}
-
 module.exports = {
     init,
     send
-}
-
-const getCache = function() {
-    return {
-        AccessKeyId: this.AccessKeyId,
-        AccessKeySecret: this.AccessKeySecret,
-        AccountName: this.AccountName
-    }
-}
-
-/**
- * 校验config对象里对应field的字段是否有值
- * @param {Array} field 需要校验的字段的key
- * @param {Object} config 被校验的对象
- * 返回一个错误信息数组
- */
-const verifyConfig = function(field, config) {
-    const errorMsg = [];
-    field = field || [];
-    field.forEach(fieldName => {
-        let field_value = config[fieldName];
-        if(!field_value) {
-            errorMsg.push(FIELD_ILLEGAL[fieldName]);
-        }
-    })
-    return errorMsg;
-}
-
-/**
- * 解析config对象，获取基本的param对象
- * @param {*} config
- */
-const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
-    let nonce           = Date.now();
-    let date            = new Date();
-    return {
-        Format: "JSON",
-        Version: "2015-11-23",
-        AccessKeyId: AccessKeyId,
-        SignatureMethod: "HMAC-SHA1",
-        Timestamp: date.toISOString(),
-        SignatureVersion: "1.0",
-
-        AccountName: AccountName,
-        AddressType: AddressType ? AddressType : 0,
-        SignatureNonce: nonce
-    };
-}
-
-/**
- * 生成密钥
- * @param {Object} map 
- * @param {*} param1 
- */
-const buildSignature = function(param, {AccessKeySecret}) {
-    let signStr = "";
-    let signStrArray = [];
-    Object.keys(param).forEach(key => {
-        signStrArray.push(encodeURIComponent(key) + "=" + encodeURIComponent(param[key]));
-    });
-    signStrArray.sort();
-    signStr = signStrArray.join("&");
-    signStr = "POST&%2F&" + encodeURIComponent(signStr);
-    const sign = crypto.createHmac(SIGNATURE_METHOD, AccessKeySecret + "&")
-        .update(signStr)
-        .digest("base64");
-    return encodeURIComponent(sign);
-}
-
-/**
- * 生成请求体
- * @param {} map 
- * @param {*} extraField 
- */
-const buildReqBody = function(map, extraField) {
-    const reqBody = [];
-    let param = Object.assign(map, extraField);
-    Object.keys(param).forEach(key => {
-        reqBody.push(key + "=" + param[key])
-    });
-    return reqBody.join("&");
 }

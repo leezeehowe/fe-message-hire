@@ -33,7 +33,7 @@ const FIELD_ILLEGAL = {
 }
 
 // 密钥算法
-const SIGNATURE_METHOD = "sha1"
+const SIGNATURE_METHOD = "sha1";
 
 module.exports = {
     ACTION,
