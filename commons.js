@@ -6,14 +6,14 @@
  */
 const ACTION = {
     SINGLESENDMAIL: {
-        value: 'SingleSendMail',
-        neededParam: ['Action', 'ReplyToAddress', 'ToAddress', 'Subject'],
-        choosableParam: ['FromAlias', 'Subject', 'HtmlBody', 'TextBody', 'TagName']
+        value: "SingleSendMail",
+        neededParam: ["Action", "ReplyToAddress", "ToAddress", "Subject"],
+        choosableParam: ["FromAlias", "Subject", "HtmlBody", "TextBody", "TagName"]
     },
     BATCHSENDMAIL: {
-        value: 'BatchSendMail',
-        neededParam: ['Action', 'TemplateName', 'ReceiversName'],
-        choosableParam: ['TagName']
+        value: "BatchSendMail",
+        neededParam: ["Action", "TemplateName", "ReceiversName"],
+        choosableParam: ["TagName"]
     }
 }
 
@@ -22,18 +22,18 @@ const ACTION = {
  */
 const FIELD_ILLEGAL = {
     AccessKeyId: "AccessKeyId required",
-    AccessKeySecret: 'AccessKeySecret required', 
+    AccessKeySecret: "AccessKeySecret required", 
     AccountName: "AccountName required",
     Action: "Error action",
     ToAddress: "ToAddress required",
     TemplateName: "TemplateName required",
     ReceiversName: "ReceiversName required",
     ReplyToAddress: "ReplyToAddress required",
-    Subject: 'Subject required'
+    Subject: "Subject required"
 }
 
 // 密钥算法
-const SIGNATURE_METHOD = 'sha1'
+const SIGNATURE_METHOD = "sha1"
 
 module.exports = {
     ACTION,

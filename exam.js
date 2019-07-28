@@ -1,12 +1,12 @@
-const {assignSpecificFields} = require('./ObjectUtils.js');
+const {assignSpecificFields} = require("./ObjectUtils.js");
 const crypto  = require("crypto");
 const axios = require("axios");
-const {ACTION, FIELD_ILLEGAL, SIGNATURE_METHOD} = require('./commons.js');
-const url = 'https://dm.aliyuncs.com/';
+const {ACTION, FIELD_ILLEGAL, SIGNATURE_METHOD} = require("./commons.js");
+const url = "https://dm.aliyuncs.com/";
 
-const AccessKeyId = '';
-const AccessKeySecret = '';
-const AccountName = '';
+const AccessKeyId = "";
+const AccessKeySecret = "";
+const AccountName = "";
 
 const send = function (inputConfig, cb) {
     let errorMsg = [];
@@ -14,7 +14,7 @@ const send = function (inputConfig, cb) {
     let param = {};
     
     // 校验config参数，并合并返回的错误信息
-    errorMsg = errorMsg.concat(verifyConfig(['AccessKeyId', 'AccessKeySecret', 'AccountName'], config));
+    errorMsg = errorMsg.concat(verifyConfig(["AccessKeyId", "AccessKeySecret", "AccountName"], config));
 
     // 根据config的action属性执行对应操作
     param = getBasicParam(config);
@@ -29,7 +29,7 @@ const send = function (inputConfig, cb) {
     if(!actionInfoObject) 
     {
         errorMsg.push(FIELD_ILLEGAL.Action);
-        return cb(errorMsg.join(','), null);
+        return cb(errorMsg.join(","), null);
     }
 
     // 校验config中是否全部包含该接口强制要求的字段
@@ -37,7 +37,7 @@ const send = function (inputConfig, cb) {
     
     // 如果错误信息数量不为0，执行回调返回
     if (errorMsg.length) {
-        return cb(errorMsg.join(','), null);
+        return cb(errorMsg.join(","), null);
     }
 
     // 根据所需调用的接口，包装接口所需的强制要求的请求参数
@@ -54,7 +54,7 @@ const send = function (inputConfig, cb) {
     // 发送请求
     axios.post(url, reqBody, {
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            "Content-Type": "application/x-www-form-urlencoded"
         }
     })
     // 邮件发送生成
@@ -99,10 +99,10 @@ const getCache = function() {
 const verifyConfig = function(field, config) {
     const errorMsg = [];
     field = field || [];
-    field.forEach(field_name => {
-        let field_value = config[field_name];
+    field.forEach(fieldName => {
+        let field_value = config[fieldName];
         if(!field_value) {
-            errorMsg.push(FIELD_ILLEGAL[field_name]);
+            errorMsg.push(FIELD_ILLEGAL[fieldName]);
         }
     })
     return errorMsg;
@@ -116,12 +116,12 @@ const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
     let nonce           = Date.now();
     let date            = new Date();
     return {
-        Format: 'JSON',
-        Version: '2015-11-23',
+        Format: "JSON",
+        Version: "2015-11-23",
         AccessKeyId: AccessKeyId,
-        SignatureMethod: 'HMAC-SHA1',
+        SignatureMethod: "HMAC-SHA1",
         Timestamp: date.toISOString(),
-        SignatureVersion: '1.0',
+        SignatureVersion: "1.0",
 
         AccountName: AccountName,
         AddressType: AddressType ? AddressType : 0,
@@ -138,14 +138,14 @@ const buildSignature = function(param, {AccessKeySecret}) {
     let signStr = "";
     let signStrArray = [];
     Object.keys(param).forEach(key => {
-        signStrArray.push(encodeURIComponent(key) + '=' + encodeURIComponent(param[key]));
+        signStrArray.push(encodeURIComponent(key) + "=" + encodeURIComponent(param[key]));
     });
     signStrArray.sort();
     signStr = signStrArray.join("&");
-    signStr = 'POST&%2F&' + encodeURIComponent(signStr);
-    const sign = crypto.createHmac(SIGNATURE_METHOD, AccessKeySecret + '&')
+    signStr = "POST&%2F&" + encodeURIComponent(signStr);
+    const sign = crypto.createHmac(SIGNATURE_METHOD, AccessKeySecret + "&")
         .update(signStr)
-        .digest('base64');
+        .digest("base64");
     return encodeURIComponent(sign);
 }
 
@@ -158,7 +158,7 @@ const buildReqBody = function(map, extraField) {
     const reqBody = [];
     let param = Object.assign(map, extraField);
     Object.keys(param).forEach(key => {
-        reqBody.push(key + '=' + param[key])
+        reqBody.push(key + "=" + param[key])
     });
-    return reqBody.join('&');
+    return reqBody.join("&");
 }

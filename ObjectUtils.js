@@ -7,10 +7,10 @@
 const assignSpecificFields = function(to, from, ...fieldsName) {
     fieldsName.forEach(name => {
         if(from[name]) to[name] = from[name];
-    })
-}
+    });
+};
 
 module.exports = {
     assignSpecificFields
-}
+};
 

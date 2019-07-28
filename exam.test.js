@@ -1,21 +1,21 @@
-const {init, send} = require('./exam.js');
-const {ACTION, FIELD_ILLEGAL} = require('./commons.js');
+const {init, send} = require("./exam.js");
+const {ACTION, FIELD_ILLEGAL} = require("./commons.js");
 
-const AccessKeyId = 'LTAIPYFKbC8po527';
-const AccessKeySecret = 'IzWbNRkbdg41bIzmz4DTe8i2O2efCe';
-const AccountName = 'lee@email.leezeehowe.top';
+const AccessKeyId = "LTAIPYFKbC8po527";
+const AccessKeySecret = "IzWbNRkbdg41bIzmz4DTe8i2O2efCe";
+const AccountName = "lee@email.leezeehowe.top";
 const ReplyToAddress = true;
 
 let taskMap = [
     {
-        taskName: `deliverying a config object without 'AccessKeyId'、'AccessKeySecret'、 'AccountName' , 
-        ${FIELD_ILLEGAL.AccessKeyId}, '${FIELD_ILLEGAL.AccessKeySecret}', '${FIELD_ILLEGAL.AccountName}' 
+        taskName: `deliverying a config object without "AccessKeyId"、"AccessKeySecret"、 "AccountName" , 
+        ${FIELD_ILLEGAL.AccessKeyId}, "${FIELD_ILLEGAL.AccessKeySecret}", "${FIELD_ILLEGAL.AccountName}" 
         is supposed to be found in the errMsg string`,
         taskParam: {
             Action: ACTION.SINGLESENDMAIL.value,
-            ReplyToAddress: 'this is ReplyToAddress',
-            ToAddress: 'this is ToAddress',
-            Subject: 'this is Subject'
+            ReplyToAddress: "this is ReplyToAddress",
+            ToAddress: "this is ToAddress",
+            Subject: "this is Subject"
         },
         expectedResult: {
             errMsg: `${FIELD_ILLEGAL.AccessKeyId},${FIELD_ILLEGAL.AccessKeySecret},${FIELD_ILLEGAL.AccountName}`,
@@ -23,14 +23,14 @@ let taskMap = [
         }
     },
     {
-        taskName: `deliverying a config object with a action neither ${ACTION.SINGLESENDMAIL.value} nor '${ACTION.BATCHSENDMAIL.value}' ,
+        taskName: `deliverying a config object with a action neither ${ACTION.SINGLESENDMAIL.value} nor "${ACTION.BATCHSENDMAIL.value}" ,
         ${FIELD_ILLEGAL.Action} 
         is supposed to be found in errMsg string`,
         taskParam: {
-            Action: 'supply',
-            AccessKeyId: 'AccessKeyId',
-            AccessKeySecret: 'AccessKeySecret',
-            AccountName: 'AccountName',
+            Action: "supply",
+            AccessKeyId: "AccessKeyId",
+            AccessKeySecret: "AccessKeySecret",
+            AccountName: "AccountName",
         },
         expectedResult: {
             errMsg: `${FIELD_ILLEGAL.Action}`,
@@ -38,14 +38,14 @@ let taskMap = [
         }
     },
     {
-        taskName: `while action is ${ACTION.SINGLESENDMAIL.value} and the 'ToAddress' or 'ReplyToAddress' or 'Subject' is blank,
+        taskName: `while action is ${ACTION.SINGLESENDMAIL.value} and the "ToAddress" or "ReplyToAddress" or "Subject" is blank,
         ${FIELD_ILLEGAL.ToAddress} or ${FIELD_ILLEGAL.ReplyToAddress} or ${FIELD_ILLEGAL.Subject} 
         is supposed to be found in errMsg string`,
         taskParam: {
             Action: ACTION.SINGLESENDMAIL.value,
-            AccessKeyId: 'AccessKeyId',
-            AccessKeySecret: 'AccessKeySecret',
-            AccountName: 'AccountName',
+            AccessKeyId: "AccessKeyId",
+            AccessKeySecret: "AccessKeySecret",
+            AccountName: "AccountName",
         },
         expectedResult: {
             errMsg: `${FIELD_ILLEGAL.ReplyToAddress},${FIELD_ILLEGAL.ToAddress},${FIELD_ILLEGAL.Subject}`,
@@ -53,13 +53,13 @@ let taskMap = [
         }
     },
     {
-        taskName: `while action is ${ACTION.BATCHSENDMAIL.value} and the 'TemplateName' or 'ReceiversName' is blank,
+        taskName: `while action is ${ACTION.BATCHSENDMAIL.value} and the "TemplateName" or "ReceiversName" is blank,
         ${FIELD_ILLEGAL.TemplateName} or ${FIELD_ILLEGAL.ReceiversName} is supposed to be found in errMsg string`,
         taskParam: {
             Action: ACTION.BATCHSENDMAIL.value,
-            AccessKeyId: 'AccessKeyId',
-            AccessKeySecret: 'AccessKeySecret',
-            AccountName: 'AccountName',
+            AccessKeyId: "AccessKeyId",
+            AccessKeySecret: "AccessKeySecret",
+            AccountName: "AccountName",
         },
         expectedResult: {
             errMsg: `${FIELD_ILLEGAL.TemplateName},${FIELD_ILLEGAL.ReceiversName}`,
@@ -72,12 +72,12 @@ let taskMap = [
         taskParam: {
             Action: ACTION.SINGLESENDMAIL.value,
             ReplyToAddress,
-            ToAddress: '1178824652@qq.com',
+            ToAddress: "1178824652@qq.com",
             // AccessKeyId,
             // AccessKeySecret,
             // AccountName,
-            TextBody: 'Hello,You have been hired.',
-            Subject: 'introduce'
+            TextBody: "Hello,You have been hired.",
+            Subject: "introduce"
         },
         expectedResult: {
             errMsg: null,
@@ -92,8 +92,8 @@ let taskMap = [
             // AccessKeyId,
             // AccessKeySecret,
             // AccountName,
-            TemplateName: 'introduce',
-            ReceiversName: 'friend'
+            TemplateName: "introduce",
+            ReceiversName: "friend"
         },
         expectedResult: {
             errMsg: null,
