@@ -8,13 +8,21 @@ const AccessKeyId = "";
 const AccessKeySecret = "";
 const AccountName = "";
 
-
+/**
+ * 初始化三个参数, 后续该三参数可选
+ * @param {String} AccessKeyId
+ * @param {String} AccessKeySecret
+ * @param {String} AccountName 
+ */
 const init = function({AccessKeyId, AccessKeySecret, AccountName}) {
     this.AccessKeyId = AccessKeyId;
     this.AccessKeySecret = AccessKeySecret;
     this.AccountName = AccountName;
 };
 
+/**
+ * 获取缓存的三个参数
+ */
 const getCache = function() {
     return {
         AccessKeyId: this.AccessKeyId,
@@ -50,15 +58,15 @@ const getBasicParam = function({AccessKeyId, AccountName, AddressType}) {
     let date            = new Date();
     return {
         Format: "JSON",
-        Version: "2015-11-23",
-        AccessKeyId,
-        SignatureMethod: "HMAC-SHA1",
         Timestamp: date.toISOString(),
+        Version: "2015-11-23",
+        SignatureMethod: "HMAC-SHA1",
+        SignatureNonce: nonce,
         SignatureVersion: "1.0",
 
         AccountName,
+        AccessKeyId,
         AddressType: AddressType ? AddressType : 0,
-        SignatureNonce: nonce
     };
 };
 
@@ -102,7 +110,8 @@ const send = function (inputConfig, cb) {
     let param = {};
     
     // 校验config参数，并合并返回的错误信息
-    errorMsg = errorMsg.concat(verifyConfig(["AccessKeyId", "AccessKeySecret", "AccountName"], config));
+    const commonNeededParam = ACTION.MAIL.neededParam;
+    errorMsg = errorMsg.concat(verifyConfig(commonNeededParam, config));
 
     // 根据config的action属性执行对应操作
     param = getBasicParam(config);

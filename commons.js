@@ -5,6 +5,9 @@
  *  choosableParam - 可选的字段
  */
 const ACTION = {
+    MAIL: {
+        neededParam: ["AccessKeyId", "AccessKeySecret", "AccountName"]
+    },
     SINGLESENDMAIL: {
         value: "SingleSendMail",
         neededParam: ["Action", "ReplyToAddress", "ToAddress", "Subject"],
