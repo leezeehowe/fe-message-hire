@@ -1,5 +1,5 @@
-const {init, send} = require("./exam.js");
-const {ACTION, FIELD_ILLEGAL} = require("./commons.js");
+const { init, send } = require("./exam.js");
+const { ACTION, FIELD_ILLEGAL } = require("./commons.js");
 
 const AccessKeyId = "LTAIPYFKbC8po527";
 const AccessKeySecret = "IzWbNRkbdg41bIzmz4DTe8i2O2efCe";
@@ -73,9 +73,9 @@ let taskMap = [
             Action: ACTION.SINGLESENDMAIL.value,
             ReplyToAddress,
             ToAddress: "1178824652@qq.com",
-            // AccessKeyId,
-            // AccessKeySecret,
-            // AccountName,
+            AccessKeyId,
+            AccessKeySecret,
+            AccountName,
             TextBody: "Hello,You have been hired.",
             Subject: "introduce"
         },
@@ -89,9 +89,9 @@ let taskMap = [
         available and the errMsg should be null`,
         taskParam: {
             Action: ACTION.BATCHSENDMAIL.value,
-            // AccessKeyId,
-            // AccessKeySecret,
-            // AccountName,
+            AccessKeyId,
+            AccessKeySecret,
+            AccountName,
             TemplateName: "introduce",
             ReceiversName: "friend"
         },
@@ -102,17 +102,38 @@ let taskMap = [
     }
 ];
 
+
 taskMap.forEach((taskItem) => {
     test(taskItem.taskName, (done) => {
-        const callback = (errMsg, response) => {
-            let received = {
-                errMsg,
-                response: response ? response.status : response  
-            };
-            expect(received).toEqual(taskItem.expectedResult);
-            done();
-        };
-        send(taskItem.taskParam, callback);
-        init({AccessKeyId, AccessKeySecret, AccountName});
+        return send(taskItem.taskParam)
+            .then(({ response }) => {
+                if (response) {
+                    expect(response.status).toBe(taskItem.expectedResult.response);
+                    done();
+                }
+            })
+            .catch(({ errorMsg }) => {
+                if (errorMsg) {
+                    expect(errorMsg).toBe(taskItem.expectedResult.errMsg);
+                    done();
+                }
+            });
     });
-});
+})
+
+// taskMap.forEach((taskItem) => {
+//     test(taskItem.taskName, (done) => {
+//         const callback = (errMsg, response) => {
+//             let received = {
+//                 errMsg,
+//                 response: response ? response.status : response  
+//             };
+//             expect(received).toEqual(taskItem.expectedResult);
+//             done();
+//         };
+//         send(taskItem.taskParam, callback);
+//         init({AccessKeyId, AccessKeySecret, AccountName});
+//     });
+// });
+
+// init({AccessKeyId, AccessKeySecret, AccountName});

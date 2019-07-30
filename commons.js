@@ -5,8 +5,9 @@
  *  choosableParam - 可选的字段
  */
 const ACTION = {
-    MAIL: {
-        neededParam: ["AccessKeyId", "AccessKeySecret", "AccountName"]
+    COMMON: {
+        cachedConfig: ["AccessKeyId", "AccessKeySecret", "AccountName"],
+        neededConfig: ["AccessKeyId", "AccessKeySecret", "AccountName"]
     },
     SINGLESENDMAIL: {
         value: "SingleSendMail",
@@ -19,6 +20,7 @@ const ACTION = {
         choosableParam: ["TagName"]
     }
 };
+
 
 /**
  * 检测到用户传入的配置不合法时，各字段相应的反馈信息

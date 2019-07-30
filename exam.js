@@ -1,35 +1,36 @@
-const {assignSpecificFields} = require("./ObjectUtils.js");
+const {
+    assignSpecificFields, 
+    keyArrayToObject,
+    deepCopyObject
+} = require("./ObjectUtils.js");
 const crypto  = require("crypto");
 const axios = require("axios");
 const {ACTION, FIELD_ILLEGAL, SIGNATURE_METHOD} = require("./commons.js");
 const url = "https://dm.aliyuncs.com/";
 
-const AccessKeyId = "";
-const AccessKeySecret = "";
-const AccountName = "";
-
 /**
- * 初始化三个参数, 后续该三参数可选
- * @param {String} AccessKeyId
- * @param {String} AccessKeySecret
- * @param {String} AccountName 
+ * 缓存模块
  */
-const init = function({AccessKeyId, AccessKeySecret, AccountName}) {
-    this.AccessKeyId = AccessKeyId;
-    this.AccessKeySecret = AccessKeySecret;
-    this.AccountName = AccountName;
-};
+const cache = (function(){
+    const cachedConfigKeyArray = ACTION.COMMON.cachedConfig;
+    let cachedParamObj = keyArrayToObject(...cachedConfigKeyArray);
 
-/**
- * 获取缓存的三个参数
- */
-const getCache = function() {
-    return {
-        AccessKeyId: this.AccessKeyId,
-        AccessKeySecret: this.AccessKeySecret,
-        AccountName: this.AccountName
+    const set = function(...cachedConfigKeyArray) {
+        cachedConfigKeyArray.forEach((key, index) => {
+            cachedParamObj[key] = arguments[index];
+        });
     };
-};
+
+    const get = function() {
+        return deepCopyObject(cachedParamObj);
+    };
+
+    return {
+        set,
+        get
+    };
+})();
+
 
 /**
  * 校验config对象里对应field的字段是否有值
@@ -104,73 +105,82 @@ const buildReqBody = function(map, extraField) {
     return reqBody.join("&");
 };
 
-const send = function (inputConfig, cb) {
-    let errorMsg = [];
-    const config = Object.assign(getCache(), inputConfig);
-    let param = {};
+const send = function (inputConfig) {
+    return new Promise((resolve, reject) => {
+        // 错误反馈信息
+        let errorMsg = [];
+        // 合并缓存
+        const config = Object.assign(cache.get(), inputConfig);
+        // 发送请求的参数
+        let param = {};
+
+        // 校验公共参数，并合并返回的错误信息
+        const commonNeededConfig = ACTION.COMMON.neededConfig;
+        errorMsg = errorMsg.concat(verifyConfig(commonNeededConfig, config));
     
-    // 校验config参数，并合并返回的错误信息
-    const commonNeededParam = ACTION.MAIL.neededParam;
-    errorMsg = errorMsg.concat(verifyConfig(commonNeededParam, config));
-
-    // 根据config的action属性执行对应操作
-    param = getBasicParam(config);
-
-    // 用户需要调用的接口名
-    let userInputAction = config.Action || "";
-
-    // 获取调用该接口所需的信息
-    const actionInfoObject = ACTION[userInputAction.toUpperCase()];
-
-    // 如果无法找到所需的信息，表明接口名不合法
-    if(!actionInfoObject) 
-    {
-        errorMsg.push(FIELD_ILLEGAL.Action);
-        return cb(errorMsg.join(","), null);
-    }
-
-    // 校验config中是否全部包含该接口强制要求的字段
-    errorMsg = errorMsg.concat(verifyConfig(actionInfoObject.neededParam, config));
+        // 获取基本的请求参数
+        param = getBasicParam(config);
     
-    // 如果错误信息数量不为0，执行回调返回
-    if (errorMsg.length) {
-        return cb(errorMsg.join(","), null);
-    }
-
-    // 根据所需调用的接口，包装接口所需的强制要求的请求参数
-    assignSpecificFields(param, config, ...actionInfoObject.neededParam);
-    // 根据所需调用的接口，包装接口所需的可选的请求参数    
-    assignSpecificFields(param, config, ...actionInfoObject.choosableParam);
-
-    // 根据param生成签名
-    const signature = buildSignature(param, config);
-
-    // 根据param和密钥生成请求体
-    const reqBody = buildReqBody(param, {Signature: signature});
-
-    // 发送请求
-    axios.post(url, reqBody, {
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
+        // 用户需要调用的接口名
+        let userInputAction = config.Action || "";
+    
+        // 获取调用该接口所需的信息
+        const actionInfoObject = ACTION[userInputAction.toUpperCase()];
+    
+        // 如果无法找到所需的信息，表明接口名不合法
+        if(!actionInfoObject) 
+        {
+            errorMsg.push(FIELD_ILLEGAL.Action);
+            // return cb(errorMsg.join(","), null);
+            return reject({errorMsg: errorMsg.join(",")});        
         }
-    })
-    // 邮件发送生成
-    .then((response) => {
-        return cb(null, response);
-    })
-    // 请求失败或者未发出请求
-    .catch((error) => {
-        // 如果已发出请求但业务失败，返回提示信息，否则返回错误信息
-        let message = "";
-        let response = error.response;
-        if(response && response.data) {
-            message = response.data.Code + ":" + response.data.Message; 
+    
+        // 校验config中是否全部包含该接口强制要求的字段
+        errorMsg = errorMsg.concat(verifyConfig(actionInfoObject.neededParam, config));
+        
+        // 如果错误信息数量不为0，执行回调返回
+        if (errorMsg.length) {
+            // return cb(errorMsg.join(","), null);
+            return reject({errorMsg: errorMsg.join(",")});
         }
-        return cb(message || error.message, null);
+    
+        // 根据所需调用的接口，包装接口所需的强制要求的请求参数
+        assignSpecificFields(param, config, ...actionInfoObject.neededParam);
+        // 根据所需调用的接口，包装接口所需的可选的请求参数    
+        assignSpecificFields(param, config, ...actionInfoObject.choosableParam);
+    
+        // 根据param生成签名
+        const signature = buildSignature(param, config);
+    
+        // 根据param和密钥生成请求体
+        const reqBody = buildReqBody(param, {Signature: signature});
+    
+        // 发送请求
+        axios.post(url, reqBody, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        })
+        // 邮件发送生成
+        .then((response) => {
+            return resolve({response});
+        })
+        // 请求失败或者未发出请求
+        .catch((error) => {
+            // 如果已发出请求但业务失败，返回提示信息，否则返回错误信息
+            let message = "";
+            let response = error.response;
+            if(response && response.data) {
+                message = response.data.Code + ":" + response.data.Message; 
+            }
+            // return cb(message || error.message, null);
+            return reject({errorMsg: message || error.message});
+        });
     });
 };
 
+
 module.exports = {
-    init,
+    init: cache.set,
     send
 };
