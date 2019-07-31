@@ -119,7 +119,7 @@ taskMap.forEach((taskItem) => {
                 }
             });
     });
-})
+});
 
 // taskMap.forEach((taskItem) => {
 //     test(taskItem.taskName, (done) => {

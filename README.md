@@ -6,7 +6,7 @@
 
   尽力改进过后的[exam-intermediate.js](https://github.com/FEMessage/hire/blob/master/exam-intermediate.js)某服务的SDK文件，向外暴露了两个接口。
 
-  - `#init` 预先设置`AccessKeyId`、`AccessKeySecret`、`AccountName`,后续该三参数可选。
+  - `#init` 缓存参数，预先设置`AccessKeyId`、`AccessKeySecret`、`AccountName`,后续该三参数可选。
   - `#send` `single` or `batch` 传递所需的`neededParam` 和 可选的`choosableParam`发送 mail。
 
 - exam.test.js
@@ -41,18 +41,16 @@
       Subject: 'FE-Message-hire',
       ReplyToAddress: true
   };
-  const callback = function(errMsg, response) {
-      if(errMsg) {
-          console.log(errMsg)
-      }
-      else {
-          console.log(response.data);
-      }
-  }
   // 发送
-  send(single_config, callback);
+  send(single_config)
+  .then((resolve) => {
+      console.log(`成功：${resolve.response.status}`);
+  })
+  .catch((reject) => {
+      console.log(`失败：${reject.errorMsg}`);
+  });
   ```
-
+  
   只需要修改`init()`的三个参数就可以给我发邮件了哦!
 
 - 增强可读性
@@ -69,7 +67,8 @@
 
 - 提高可易用性
 
-  添加了一个`init`方法，可以预先把基本上后续不会改变的参数缓存起来，后续调用接口就不用每次都写一遍了。
+  1. 添加了一个`init`方法，可以预先把基本上后续不会改变的参数缓存起来，后续调用接口就不用每次都写一遍了。
+  2. 把回调函数的形式改为`Promise`，成功发送邮件将返回`resolve`状态的`Promise`，发送失败或者参数错误将返回`reject`状态的`Promise`。
 
 - 请求库替换成axios
 
