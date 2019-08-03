@@ -5,23 +5,43 @@ const {
 } = require("./ObjectUtils.js");
 const crypto  = require("crypto");
 const axios = require("axios");
-const {ACTION, FIELD_ILLEGAL, SIGNATURE_METHOD} = require("./commons.js");
+const {ACTION, FIELD_ILLEGAL, SIGNATURE_METHOD} = require("./config.js");
 const url = "https://dm.aliyuncs.com/";
 
 /**
  * 缓存模块
  */
 const cache = (function(){
+    // 配置里设置的要缓存的config的字段名
     const cachedConfigKeyArray = ACTION.COMMON.cachedConfig;
+    // config对象
     let cachedParamObj = keyArrayToObject(...cachedConfigKeyArray);
 
-    const set = function(...cachedConfigKeyArray) {
-        cachedConfigKeyArray.forEach((key, index) => {
-            cachedParamObj[key] = arguments[index];
-        });
+    console.log("缓存模块初始化，缓存字段：" + JSON.stringify(cachedParamObj))
+
+    // 是否可以被缓存
+    const canbeCached = function(fieldName) {
+        return cachedConfigKeyArray.includes(fieldName);
+    } 
+
+    // 接收用户传入的值，更新缓存对象
+    const set = function(inputObj) {
+        let inputObjKeys = Object.keys(inputObj);
+        // 校验传入的字段是否是预设允许缓存的字段
+        if(inputObjKeys.every(canbeCached)) {
+            cachedConfigKeyArray.forEach((item) => {
+                cachedParamObj[item] = inputObj[item];
+            })
+        }
+        else {
+            throw new Error(`#init only receive ${cachedConfigKeyArray.join("、")}`);
+        }
+        console.log("更新缓存模块，缓存字段：" + JSON.stringify(cachedParamObj));
     };
 
+    // 获取缓存模块中的config对象
     const get = function() {
+        console.log("获取缓存模块，缓存字段：" + JSON.stringify(cachedParamObj));
         return deepCopyObject(cachedParamObj);
     };
 
@@ -105,13 +125,14 @@ const buildReqBody = function(map, extraField) {
     return reqBody.join("&");
 };
 
+
 const send = function (inputConfig) {
     return new Promise((resolve, reject) => {
         // 错误反馈信息
         let errorMsg = [];
         // 合并缓存
         const config = Object.assign(cache.get(), inputConfig);
-        // 发送请求的参数
+        // http请求的参数
         let param = {};
 
         // 校验公共参数，并合并返回的错误信息

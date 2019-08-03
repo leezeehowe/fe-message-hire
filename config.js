@@ -5,8 +5,11 @@
  *  choosableParam - 可选的字段
  */
 const ACTION = {
+    // 通用配置
     COMMON: {
+        // #init允许缓存的字段
         cachedConfig: ["AccessKeyId", "AccessKeySecret", "AccountName"],
+        // 用户传入的config对象必须
         neededConfig: ["AccessKeyId", "AccessKeySecret", "AccountName"]
     },
     SINGLESENDMAIL: {

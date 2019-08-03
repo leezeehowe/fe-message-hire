@@ -1,15 +1,43 @@
-const { init, send } = require("./exam.js");
-const { ACTION, FIELD_ILLEGAL } = require("./commons.js");
+const { init, send } = require("./mail.js");
+const { ACTION, FIELD_ILLEGAL } = require("./config.js");
 
 const AccessKeyId = "LTAIPYFKbC8po527";
 const AccessKeySecret = "IzWbNRkbdg41bIzmz4DTe8i2O2efCe";
 const AccountName = "lee@email.leezeehowe.top";
 const ReplyToAddress = true;
 
+test("test #init: while those specified field have been cached, they do not need to be deliveried again to #send ", (done) => {
+    init({ AccessKeyId, AccessKeySecret, AccountName });
+    return send({
+        Action: ACTION.SINGLESENDMAIL.value,
+        ReplyToAddress,
+        ToAddress: "1178824652@qq.com",
+        TextBody: "Hello,You have been hired.",
+        Subject: "introduce"
+    })
+        .then(({ response }) => {
+            if (response) {
+                expect(response.status).toBe(200);
+                done();
+            }
+        })
+        .catch(({ errorMsg }) => {
+            if (errorMsg) {
+                expect(errorMsg).toBe(null);
+                done();
+            }
+        });
+}, 10000);
+
+// 清除缓存，避免影响下面的测试
+afterEach(() => {
+    init({});
+});
+
 let taskMap = [
     {
         taskName: `deliverying a config object without "AccessKeyId"、"AccessKeySecret"、 "AccountName" , 
-        ${FIELD_ILLEGAL.AccessKeyId}, "${FIELD_ILLEGAL.AccessKeySecret}", "${FIELD_ILLEGAL.AccountName}" 
+        "${FIELD_ILLEGAL.AccessKeyId},${FIELD_ILLEGAL.AccessKeySecret},${FIELD_ILLEGAL.AccountName}" 
         is supposed to be found in the errMsg string`,
         taskParam: {
             Action: ACTION.SINGLESENDMAIL.value,
@@ -23,8 +51,8 @@ let taskMap = [
         }
     },
     {
-        taskName: `deliverying a config object with a action neither ${ACTION.SINGLESENDMAIL.value} nor "${ACTION.BATCHSENDMAIL.value}" ,
-        ${FIELD_ILLEGAL.Action} 
+        taskName: `deliverying a config object with a action neither "${ACTION.SINGLESENDMAIL.value}" nor "${ACTION.BATCHSENDMAIL.value}" ,
+        "${FIELD_ILLEGAL.Action}" 
         is supposed to be found in errMsg string`,
         taskParam: {
             Action: "supply",
@@ -38,8 +66,8 @@ let taskMap = [
         }
     },
     {
-        taskName: `while action is ${ACTION.SINGLESENDMAIL.value} and the "ToAddress" or "ReplyToAddress" or "Subject" is blank,
-        ${FIELD_ILLEGAL.ToAddress} or ${FIELD_ILLEGAL.ReplyToAddress} or ${FIELD_ILLEGAL.Subject} 
+        taskName: `while action is "${ACTION.SINGLESENDMAIL.value}" and the ToAddress and ReplyToAddress and Subject is blank,
+        "${FIELD_ILLEGAL.ToAddress},${FIELD_ILLEGAL.ReplyToAddress},${FIELD_ILLEGAL.Subject}"
         is supposed to be found in errMsg string`,
         taskParam: {
             Action: ACTION.SINGLESENDMAIL.value,
@@ -53,8 +81,9 @@ let taskMap = [
         }
     },
     {
-        taskName: `while action is ${ACTION.BATCHSENDMAIL.value} and the "TemplateName" or "ReceiversName" is blank,
-        ${FIELD_ILLEGAL.TemplateName} or ${FIELD_ILLEGAL.ReceiversName} is supposed to be found in errMsg string`,
+        taskName: `while action is "${ACTION.BATCHSENDMAIL.value}" and the TemplateName and ReceiversName is blank,
+        "${FIELD_ILLEGAL.TemplateName},${FIELD_ILLEGAL.ReceiversName}" 
+        is supposed to be found in errMsg string`,
         taskParam: {
             Action: ACTION.BATCHSENDMAIL.value,
             AccessKeyId: "AccessKeyId",
@@ -102,7 +131,6 @@ let taskMap = [
     }
 ];
 
-
 taskMap.forEach((taskItem) => {
     test(taskItem.taskName, (done) => {
         return send(taskItem.taskParam)
@@ -121,6 +149,7 @@ taskMap.forEach((taskItem) => {
     });
 });
 
+
 // taskMap.forEach((taskItem) => {
 //     test(taskItem.taskName, (done) => {
 //         const callback = (errMsg, response) => {
@@ -135,5 +164,3 @@ taskMap.forEach((taskItem) => {
 //         init({AccessKeyId, AccessKeySecret, AccountName});
 //     });
 // });
-
-// init({AccessKeyId, AccessKeySecret, AccountName});
